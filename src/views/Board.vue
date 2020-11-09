@@ -6,7 +6,7 @@
           {{ column.name }}
         </div>
         <div class="list-reset">
-          <div class="task" v-for="task in column.tasks" :key="task.id">
+          <div class="task" v-for="task in column.tasks" :key="task.id" @click="goToTask(task.id)">
             <span class="w-full flex-no-shrink font-bold">
               {{ task.name }}
             </span>
@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div v-if="isTaskOpen" class="task-bg">
+    <div v-if="isTaskOpen" class="task-bg" @click.self="close">
       <router-view />
     </div>
   </div>
@@ -33,6 +33,14 @@ export default {
     isTaskOpen () {
       return this.$route.name === 'task'
     }
+  },
+  methods: {
+    goToTask (id) {
+      this.$router.push({ name: 'task', params: { id } })
+    },
+    close () {
+      this.$router.push({ name: 'board' })
+    }
   }
 }
 </script>
@@ -40,6 +48,7 @@ export default {
 <style lang="css">
 .task {
   @apply flex items-center flex-wrap shadow mb-2 py-2 px-2 rounded bg-white text-grey-darkest no-underline;
+  cursor: pointer;
 }
 
 .column {
