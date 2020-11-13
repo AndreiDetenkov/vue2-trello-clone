@@ -1,16 +1,28 @@
 <template>
   <div class="board">
     <div class="flex flex-row items-start">
-      <div class="column" v-for="(column, $columnIdx) in board.columns" :key="$columnIdx">
+      <div
+        class="column"
+        v-for="(column, $columnIndex) in board.columns"
+        :key="$columnIndex"
+        @drop="moveTask($event, column.tasks)"
+        @dragover.prevent
+        @dragenter.prevent
+      >
         <div class="flex items-center mb-2 font-bold">
           {{ column.name }}
         </div>
 
         <div class="list-reset">
-          <div class="task" v-for="task in column.tasks" :key="task.id" @click="goToTask(task.id)">
-            <span class="w-full flex-no-shrink font-bold">
-              {{ task.name }}
-            </span>
+          <div
+            class="task"
+            v-for="(task, $taskIndex) in column.tasks"
+            :key="$taskIndex"
+            @click="goToTask(task.id)"
+            draggable="true"
+            @dragstart="pickupTask($event, $taskIndex, $columnIndex)"
+          >
+            <span class="w-full flex-no-shrink font-bold">{{ task.name }}</span>
             <p v-if="task.description" class="w-full flex-no-shrink mt-1 text-sm">
               {{ task.description }}
             </p>
@@ -55,6 +67,25 @@ export default {
         name: e.target.value
       })
       e.target.value = ''
+    },
+    pickupTask (e, taskIndex, fromColumnIndex) {
+      e.dataTransfer.effectAllowed = 'move'
+      e.dataTransfer.dropEffect = 'move'
+
+      e.dataTransfer.setData('task-index', taskIndex)
+      e.dataTransfer.setData('from-column-index', fromColumnIndex)
+    },
+    moveTask (e, toTasks) {
+      const fromColumnIndex = e.dataTransfer.getData('from-column-index')
+      const fromTasks = this.board.columns[fromColumnIndex].tasks
+
+      const taskIndex = e.dataTransfer.getData('task-index')
+
+      this.$store.commit('MOVE_TASK', {
+        fromTasks,
+        toTasks,
+        taskIndex
+      })
     }
   }
 }
@@ -63,7 +94,6 @@ export default {
 <style lang="css">
 .task {
   @apply flex items-center flex-wrap shadow mb-2 py-2 px-2 rounded bg-white text-grey-darkest no-underline;
-  cursor: pointer;
 }
 
 .column {

@@ -15,7 +15,6 @@
         @change="updateTaskProperty($event, 'description')"
       />
     </div>
-
   </div>
 </template>
 
@@ -31,13 +30,17 @@ export default {
   },
   methods: {
     updateTaskProperty (e, key) {
-      this.$store.commit('UPDATE_TASK', { task: this.task, key, value: e.target.value })
+      this.$store.commit('UPDATE_TASK', {
+        task: this.task,
+        key,
+        value: e.target.value
+      })
     }
   }
 }
 </script>
 
-<style>
+<style lang="css">
 .task-view {
   @apply relative flex flex-row bg-white pin mx-4 m-32 mx-auto py-4 text-left rounded shadow;
   max-width: 700px;
