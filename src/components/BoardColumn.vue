@@ -12,22 +12,15 @@
     </div>
 
     <div class="list-reset">
-      <div
-        class="task"
+      <ColumnTask
         v-for="(task, $taskIndex) in column.tasks"
         :key="$taskIndex"
-        @click="goToTask(task.id)"
-        draggable="true"
-        @dragstart="pickupTask($event, $taskIndex, columnIndex)"
-        @dragover.prevent
-        @dragenter.prevent
-        @drop.stop="moveTaskOrColumn($event, column.tasks, columnIndex, $taskIndex)"
-      >
-        <span class="w-full flex-no-shrink font-bold">{{ task.name }}</span>
-        <p v-if="task.description" class="w-full flex-no-shrink mt-1 text-sm">
-          {{ task.description }}
-        </p>
-      </div>
+        :task="task"
+        :taskIndex="$taskIndex"
+        :column="column"
+        :columnIndex="columnIndex"
+        :board="board"
+      />
     </div>
 
     <input
@@ -40,8 +33,13 @@
 </template>
 
 <script>
+import ColumnTask from '@/components/ColumnTask'
+
 export default {
   name: 'BoardColumn',
+  components: {
+    ColumnTask
+  },
   props: {
     column: {
       type: Object,
@@ -81,23 +79,12 @@ export default {
 
       this.$store.commit('MOVE_COLUMN', { fromColumnIndex, toColumnIndex })
     },
-    pickupTask (e, taskIndex, fromColumnIndex) {
-      e.dataTransfer.effectAllowed = 'move'
-      e.dataTransfer.dropEffect = 'move'
-
-      e.dataTransfer.setData('from-task-index', taskIndex)
-      e.dataTransfer.setData('from-column-index', fromColumnIndex)
-      e.dataTransfer.setData('type', 'task')
-    },
     pickupColumn (e, fromColumnIndex) {
       e.dataTransfer.effectAllowed = 'move'
       e.dataTransfer.dropEffect = 'move'
 
       e.dataTransfer.setData('from-column-index', fromColumnIndex)
       e.dataTransfer.setData('type', 'column')
-    },
-    goToTask (id) {
-      this.$router.push({ name: 'task', params: { id } })
     },
     createTask (e, tasks) {
       this.$store.commit('CREATE_TASK', {
@@ -111,10 +98,6 @@ export default {
 </script>
 
 <style lang="css">
-.task {
-  @apply flex items-center flex-wrap shadow mb-2 py-2 px-2 rounded bg-white text-grey-darkest no-underline;
-}
-
 .column {
   @apply bg-grey-light p-2 mr-4 text-left shadow rounded;
   min-width: 350px;
